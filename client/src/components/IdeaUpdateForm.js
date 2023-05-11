@@ -4,40 +4,21 @@ import IdeaList from "./IdeaList";
 import Modal from "./Modal";
 
 class IdeaUpdateForm {
-  constructor() {
+  constructor(ideaToUpdate) {
+    this.ideaToUpdate = ideaToUpdate;
     this._formModal = document.querySelector("#form-update-modal");
     this._ideaList = new IdeaList();
     this._modal = new Modal();
-    this._ideaToUpdateId;
   }
 
   addEventListeners() {
     this._form.addEventListener("submit", this.handleSubmit.bind(this));
-
-    this._ideaList._ideaListEl.addEventListener("click", (e) => {
-      if (e.target.classList.contains("fa-pen")) {
-        e.stopImmediatePropagation();
-
-        this._modal.openUpdate();
-
-        this._ideaToUpdateId = e.target.parentElement.parentElement.dataset.id;
-        const ideaToUpdate = this._ideaList._ideas.filter(
-          (idea) => idea._id === this._ideaToUpdateId
-        )[0];
-
-        this._form.elements.text.value = ideaToUpdate.text;
-        this._form.elements.tag.value = ideaToUpdate.tag;
-      }
-    });
   }
 
   async handleSubmit(e) {
     e.preventDefault();
 
-    if (
-      !this._form.elements.text.value ||
-      !this._form.elements.tag.value
-    ) {
+    if (!this._form.elements.text.value || !this._form.elements.tag.value) {
       alert("Please enter all fields.");
       return;
     }
@@ -48,9 +29,8 @@ class IdeaUpdateForm {
       tag: this._form.elements.tag.value,
     };
 
-
     // Update idea on the server
-    const ideaToUpdate = await IdeasApi.updateIdea(this._ideaToUpdateId, idea);
+    const ideaToUpdate = await IdeasApi.updateIdea(this.ideaToUpdate._id, idea);
 
     // Update idea in the list
     this._ideaList.updateIdeaInList(ideaToUpdate.data.data);
@@ -68,11 +48,11 @@ class IdeaUpdateForm {
     <form id="idea-update-form">
         <div class="form-control">
         <label for="idea-text">Update your Idea</label>
-        <textarea name="text" id="idea-text"></textarea>
+        <textarea name="text" id="idea-text">${this.ideaToUpdate.text}</textarea>
         </div>
         <div class="form-control">
         <label for="tag">Tag</label>
-        <input type="text" name="tag" id="tag" />
+        <input type="text" name="tag" id="tag" value="${this.ideaToUpdate.tag}" />
         </div>
         <button class="btn" type="submit" id="submit">Submit</button>
     </form>

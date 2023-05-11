@@ -1,8 +1,12 @@
 import IdeasApi from "../services/IdeasApi";
 
+import Modal from "./Modal";
+import IdeaUpdateForm from "../components/IdeaUpdateForm";
 class IdeaList {
   constructor() {
     this._ideaListEl = document.querySelector("#idea-list");
+
+    this._modal = new Modal();
 
     this._ideas = [];
 
@@ -24,6 +28,19 @@ class IdeaList {
 
         const ideaId = e.target.parentElement.parentElement.dataset.id;
         this.deleteIdea(ideaId);
+      }
+    });
+    this._ideaListEl.addEventListener("click", (e) => {
+      if (e.target.classList.contains("fa-pen")) {
+        e.stopImmediatePropagation();
+
+        const ideaId = e.target.parentElement.parentElement.dataset.id;
+        const idea = this._ideas.filter((idea) => idea._id === ideaId)[0];
+        
+        const ideaUpdateForm = new IdeaUpdateForm(idea);
+        ideaUpdateForm.render();
+
+        this._modal.openUpdate();
       }
     });
   }
@@ -60,7 +77,7 @@ class IdeaList {
   }
 
   updateIdeaInList(idea) {
-    const ideaInList = this._ideas.find(i => i._id === idea._id);
+    const ideaInList = this._ideas.find((i) => i._id === idea._id);
 
     ideaInList.text = idea.text;
     ideaInList.tag = idea.tag;
